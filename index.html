@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatoire des Politiques Publiques</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a8a29e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #78716c;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        /* Animation for cards */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals & Academic Blue -->
+    <!-- Application Structure Plan: Dashboard layout with sidebar navigation. 
+         1. 'Fondamentaux': Definitions of State/Nation.
+         2. 'Échelles': Visual hierarchy of power (EU/National/Local).
+         3. 'Cycle de Vie': Sequential grid + Kingdon's Stream Mixer (Interaction).
+         4. 'Décision': Comparison of theories + Garbage Can Simulation (Canvas).
+         5. 'Cas Pratique': Politique de la Ville summary.
+         Rationale: Deconstructs the dense PDF into logical, digestible analysis tools. -->
+    <!-- Visualization & Content Choices: 
+         - Kingdon Mixer: Sliders to visualize the 'Policy Window' concept (Goal: Change/Understand).
+         - Power Radar: Chart.js to compare resources of different actors (Goal: Compare).
+         - Garbage Can Sim: Custom Canvas animation to visualize chaos (Goal: Inform/Wow).
+         - Text: Synthesized from PDF, grouped by concept. 
+         - NO SVG / NO Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-[#f5f5f0] text-gray-800 font-sans h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-[#e8e6e1] border-r border-gray-300 flex-shrink-0 flex flex-col z-20 shadow-lg md:shadow-none">
+        <div class="p-6 border-b border-gray-300">
+            <h1 class="text-xl font-bold text-[#2c3e50]">Politiques Publiques</h1>
+            <p class="text-xs text-gray-500 mt-1 uppercase tracking-wide">Observatoire Interactif</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li><button onclick="navigateTo('dashboard')" class="nav-btn w-full text-left px-6 py-3 hover:bg-[#d6d3cc] transition-colors font-medium border-l-4 border-transparent active-nav" data-target="dashboard">Vue d'ensemble</button></li>
+                <li><button onclick="navigateTo('scales')" class="nav-btn w-full text-left px-6 py-3 hover:bg-[#d6d3cc] transition-colors font-medium border-l-4 border-transparent" data-target="scales">Échelles de Pouvoir</button></li>
+                <li><button onclick="navigateTo('cycle')" class="nav-btn w-full text-left px-6 py-3 hover:bg-[#d6d3cc] transition-colors font-medium border-l-4 border-transparent" data-target="cycle">La Fabrique (Cycle)</button></li>
+                <li><button onclick="navigateTo('decision')" class="nav-btn w-full text-left px-6 py-3 hover:bg-[#d6d3cc] transition-colors font-medium border-l-4 border-transparent" data-target="decision">La Boîte Noire (Décision)</button></li>
+                <li><button onclick="navigateTo('case')" class="nav-btn w-full text-left px-6 py-3 hover:bg-[#d6d3cc] transition-colors font-medium border-l-4 border-transparent" data-target="case">Étude de Cas</button></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-300 bg-[#e0ded9]">
+            <p class="text-xs text-gray-600 italic">Basé sur le cours "Politiques Publiques"</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto relative p-4 md:p-8" id="main-content">
+        
+        <!-- SECTION: DASHBOARD -->
+        <section id="dashboard" class="content-section fade-in">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-[#2c3e50] mb-2">Comprendre l'Action Publique</h2>
+                <p class="text-lg text-gray-600">Bienvenue dans l'outil d'analyse. Ce tableau de bord synthétise les concepts fondamentaux de l'État, de la Nation et de l'analyse des politiques publiques.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Concept Card 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">🏛️</div>
+                    <h3 class="text-xl font-bold mb-2 text-[#2c3e50]">L'État</h3>
+                    <p class="text-sm text-gray-600 mb-4">Forme institutionnalisée du pouvoir politique. Il détient le monopole de la définition des normes sur un territoire.</p>
+                    <div class="bg-blue-50 p-3 rounded text-xs text-blue-800 border-l-4 border-blue-500">
+                        <strong>État de Droit :</strong> Respect des procédures légales et hiérarchie des normes.
+                    </div>
+                </div>
+
+                <!-- Concept Card 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">🇫🇷</div>
+                    <h3 class="text-xl font-bold mb-2 text-[#2c3e50]">La Nation</h3>
+                    <p class="text-sm text-gray-600 mb-4">Communauté liée par une culture ou un projet commun. Ne coïncide pas toujours avec l'État.</p>
+                    <div class="bg-red-50 p-3 rounded text-xs text-red-800 border-l-4 border-red-500">
+                        <strong>Conception Subjective :</strong> Volonté de vivre ensemble (Renan) vs Conception Objective (Race/Langue).
+                    </div>
+                </div>
+
+                <!-- Concept Card 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h3 class="text-xl font-bold mb-2 text-[#2c3e50]">Analyse</h3>
+                    <p class="text-sm text-gray-600 mb-4">L'analyse des politiques publiques déconstruit l'État par le bas pour observer les acteurs et les processus.</p>
+                    <ul class="text-xs text-gray-600 list-disc list-inside mt-2">
+                        <li>Sociologie des organisations</li>
+                        <li>Management Public</li>
+                        <li>Analyse séquentielle</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Context Info -->
+            <div class="bg-[#fffdf5] border-l-4 border-[#eab308] p-6 rounded shadow-sm">
+                <h3 class="text-lg font-bold text-[#854d0e] mb-2">Pourquoi analyser les politiques publiques ?</h3>
+                <p class="text-gray-700 mb-3">
+                    L'État moderne ne se contente pas d'être, il <strong>agit</strong>. Comprendre comment une question sociale devient un problème politique, puis une action publique, nécessite de dépasser l'approche juridique pour adopter une approche sociologique.
+                </p>
+                <div class="flex gap-4 text-sm text-[#854d0e] font-semibold">
+                    <span>⚡ Identifier les acteurs</span>
+                    <span>⚡ Comprendre les décisions</span>
+                    <span>⚡ Evaluer les impacts</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ECHELLES DE POUVOIR -->
+        <section id="scales" class="content-section hidden fade-in">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-[#2c3e50] mb-2">Les Échelles de Pouvoir</h2>
+                <p class="text-lg text-gray-600">La souveraineté de l'État est aujourd'hui "ébréchée" par le haut (Europe) et par le bas (Décentralisation). Explorez ces dynamiques.</p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Interactive List -->
+                <div class="space-y-4">
+                    <div onclick="updatePowerDetail('eu')" class="cursor-pointer bg-white p-5 rounded-lg border-l-8 border-blue-600 shadow-sm hover:bg-blue-50 transition-colors group">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800">1. Pouvoir Européen</h3>
+                            <span class="text-2xl group-hover:scale-110 transition-transform">🇪🇺</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Supranational & Subsidiarité</p>
+                    </div>
+
+                    <div onclick="updatePowerDetail('national')" class="cursor-pointer bg-white p-5 rounded-lg border-l-8 border-indigo-600 shadow-sm hover:bg-indigo-50 transition-colors group">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800">2. Pouvoir National (Central)</h3>
+                            <span class="text-2xl group-hover:scale-110 transition-transform">🏛️</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Souveraineté & Fonctions Régaliennes</p>
+                    </div>
+
+                    <div onclick="updatePowerDetail('local')" class="cursor-pointer bg-white p-5 rounded-lg border-l-8 border-emerald-600 shadow-sm hover:bg-emerald-50 transition-colors group">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800">3. Pouvoir Local</h3>
+                            <span class="text-2xl group-hover:scale-110 transition-transform">🏙️</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Décentralisation & Proximité</p>
+                    </div>
+                    
+                    <div onclick="updatePowerDetail('citizen')" class="cursor-pointer bg-white p-5 rounded-lg border-l-8 border-orange-500 shadow-sm hover:bg-orange-50 transition-colors group">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800">4. Pouvoir Citoyen</h3>
+                            <span class="text-2xl group-hover:scale-110 transition-transform">✊</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Contrat Social & Participation</p>
+                    </div>
+                </div>
+
+                <!-- Detail Panel -->
+                <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-lg min-h-[300px] flex flex-col justify-center" id="power-detail-panel">
+                    <h3 class="text-2xl font-bold text-[#2c3e50] mb-4" id="power-title">Sélectionnez une échelle</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6" id="power-desc">Cliquez sur un niveau de pouvoir à gauche pour voir les détails de ses compétences, ses enjeux et ses limites actuelles.</p>
+                    <div id="power-keywords" class="flex flex-wrap gap-2">
+                        <!-- Keywords injected here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-gray-100 p-6 rounded-lg">
+                <h4 class="font-bold text-gray-700 mb-2">Le Concept Clé : La Subsidiarité</h4>
+                <p class="text-sm text-gray-600">
+                    Définie dans le cadre européen, la subsidiarité stipule que l'échelon supérieur (UE) ne doit intervenir que si l'action est **plus efficace** à son niveau qu'au niveau inférieur (États membres). Cela crée une tension constante sur la localisation précise du pouvoir.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION: CYCLE DE VIE (LA FABRIQUE) -->
+        <section id="cycle" class="content-section hidden fade-in">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-[#2c3e50] mb-2">La Fabrique : Cycle d'une Politique</h2>
+                <p class="text-lg text-gray-600">L'analyse séquentielle décompose l'action publique en étapes logiques, de l'émergence du problème à son évaluation. Mais tout commence par l'agenda.</p>
+            </header>
+
+            <!-- 1. The Sequential Grid (Horizontal Scroll) -->
+            <div class="mb-12">
+                <h3 class="text-xl font-bold text-[#2c3e50] mb-4">La Grille Séquentielle</h3>
+                <div class="flex overflow-x-auto pb-4 gap-4 snap-x">
+                    <!-- Step 1 -->
+                    <div class="min-w-[280px] bg-white p-5 rounded border-t-4 border-purple-500 shadow-sm flex-shrink-0 snap-start">
+                        <div class="text-purple-600 font-bold mb-2">01. Identification</div>
+                        <h4 class="font-bold text-lg mb-2">Mise sur Agenda</h4>
+                        <p class="text-sm text-gray-600">Le problème devient politique. Mobilisation d'acteurs, médiatisation, controverses.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="min-w-[280px] bg-white p-5 rounded border-t-4 border-blue-500 shadow-sm flex-shrink-0 snap-start">
+                        <div class="text-blue-600 font-bold mb-2">02. Développement</div>
+                        <h4 class="font-bold text-lg mb-2">Décision & Formulation</h4>
+                        <p class="text-sm text-gray-600">Choix d'une solution technique et légitimation politique (Vote de la loi).</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="min-w-[280px] bg-white p-5 rounded border-t-4 border-green-500 shadow-sm flex-shrink-0 snap-start">
+                        <div class="text-green-600 font-bold mb-2">03. Implémentation</div>
+                        <h4 class="font-bold text-lg mb-2">Mise en Œuvre</h4>
+                        <p class="text-sm text-gray-600">Application par l'administration. Organisation des moyens, décrets, terrain.</p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="min-w-[280px] bg-white p-5 rounded border-t-4 border-yellow-500 shadow-sm flex-shrink-0 snap-start">
+                        <div class="text-yellow-600 font-bold mb-2">04. Évaluation</div>
+                        <h4 class="font-bold text-lg mb-2">Mesure des Effets</h4>
+                        <p class="text-sm text-gray-600">Comparaison résultats/objectifs. Efficacité, efficience, impacts.</p>
+                    </div>
+                    <!-- Step 5 -->
+                    <div class="min-w-[280px] bg-white p-5 rounded border-t-4 border-gray-500 shadow-sm flex-shrink-0 snap-start">
+                        <div class="text-gray-600 font-bold mb-2">05. Terminaison</div>
+                        <h4 class="font-bold text-lg mb-2">Fin ou Relance</h4>
+                        <p class="text-sm text-gray-600">Rarement définitive. Souvent une réorientation ou un nouveau cycle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Kingdon's Stream Mixer (Interactive) -->
+            <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                <div class="p-6 bg-[#2c3e50] text-white">
+                    <h3 class="text-xl font-bold">Simulateur de "Fenêtre Politique" (John Kingdon)</h3>
+                    <p class="text-sm opacity-80 mt-1">Pour qu'une réforme passe, trois courants doivent converger. Manipulez les curseurs pour ouvrir la fenêtre d'opportunité.</p>
+                </div>
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6">
+                        <!-- Problem Stream -->
+                        <div>
+                            <label class="flex justify-between text-sm font-bold text-gray-700 mb-2">
+                                <span>Courant des Problèmes</span>
+                                <span id="val-problem" class="text-red-500">Faible</span>
+                            </label>
+                            <input type="range" id="range-problem" min="0" max="100" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-500">
+                            <p class="text-xs text-gray-500 mt-1">Événements marquants, urgence perçue, indicateurs alarmants.</p>
+                        </div>
+                        
+                        <!-- Policy Stream -->
+                        <div>
+                            <label class="flex justify-between text-sm font-bold text-gray-700 mb-2">
+                                <span>Courant des Politiques (Solutions)</span>
+                                <span id="val-solution" class="text-blue-500">Inexistante</span>
+                            </label>
+                            <input type="range" id="range-solution" min="0" max="100" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Solutions techniques disponibles, faisabilité, accord des experts.</p>
+                        </div>
+
+                        <!-- Politics Stream -->
+                        <div>
+                            <label class="flex justify-between text-sm font-bold text-gray-700 mb-2">
+                                <span>Courant Politique</span>
+                                <span id="val-politics" class="text-green-500">Défavorable</span>
+                            </label>
+                            <input type="range" id="range-politics" min="0" max="100" value="20" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500">
+                            <p class="text-xs text-gray-500 mt-1">Opinion publique, contexte électoral, rapports de force.</p>
+                        </div>
+                    </div>
+
+                    <!-- Result Display -->
+                    <div class="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-xl border border-gray-200 text-center h-full">
+                        <div id="window-status-icon" class="text-6xl mb-4 grayscale transition-all duration-500">🪟</div>
+                        <h4 id="window-status-title" class="text-xl font-bold text-gray-400">Fenêtre Fermée</h4>
+                        <p id="window-status-desc" class="text-sm text-gray-500 mt-2">Les conditions ne sont pas réunies. La réforme reste dans les tiroirs.</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+                            <div id="convergence-bar" class="bg-gray-400 h-2.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DECISION (BOITE NOIRE) -->
+        <section id="decision" class="content-section hidden fade-in">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-[#2c3e50] mb-2">La Boîte Noire : La Décision</h2>
+                <p class="text-lg text-gray-600">Comment décide-t-on ? L'idée d'un décideur parfaitement rationnel est un mythe. Découvrez les modèles réalistes.</p>
+            </header>
+
+            <!-- Comparative Tabs -->
+            <div class="mb-8 border-b border-gray-200">
+                <nav class="flex space-x-8" aria-label="Tabs">
+                    <button onclick="switchDecisionTab('simon')" class="decision-tab border-b-2 border-indigo-500 py-4 px-1 text-sm font-medium text-indigo-600 hover:text-indigo-800" data-tab="simon">Rationalité Limitée (Simon)</button>
+                    <button onclick="switchDecisionTab('garbage')" class="decision-tab border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="garbage">Modèle de la Poubelle</button>
+                    <button onclick="switchDecisionTab('increment')" class="decision-tab border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="increment">Incrémentalisme</button>
+                </nav>
+            </div>
+
+            <!-- Tab Content: Simon -->
+            <div id="tab-simon" class="decision-content block">
+                <div class="flex flex-col lg:flex-row gap-8 items-start">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-[#2c3e50] mb-3">Le mythe de l'Optimum</h3>
+                        <p class="text-gray-700 mb-4">Selon Herbert Simon, le décideur ne peut pas connaître toutes les solutions ni toutes les conséquences (information imparfaite, temps limité).</p>
+                        <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-4">
+                            <h4 class="font-bold text-indigo-800">Le Concept : La Satisfaction</h4>
+                            <p class="text-sm text-indigo-700">Le décideur ne cherche pas la solution <em>optimale</em> (la meilleure absolue), mais s'arrête à la première solution <strong>satisfaisante</strong> qui remplit ses critères minimaux.</p>
+                        </div>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>Capacités cognitives limitées.</li>
+                            <li>Information incomplète.</li>
+                            <li>Processus séquentiel (on évalue les options une par une).</li>
+                        </ul>
+                    </div>
+                    <!-- ChartJS Visualization for Resources/Rationality -->
+                    <div class="w-full lg:w-1/2 bg-white p-4 rounded shadow chart-container">
+                        <canvas id="rationalityChart"></canvas>
+                        <p class="text-center text-xs text-gray-500 mt-2">Le décideur politique doit jongler avec des contraintes contradictoires.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Garbage Can -->
+            <div id="tab-garbage" class="decision-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-xl font-bold text-[#2c3e50] mb-3">L'Anarchie Organisée</h3>
+                        <p class="text-gray-700 mb-4">Proposé par Cohen, March et Olsen. Dans des organisations floues, la décision est une rencontre hasardeuse entre des flux indépendants.</p>
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center"><span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span> <strong class="mr-1">Problèmes :</strong> Soucis qui cherchent attention.</li>
+                            <li class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span> <strong class="mr-1">Solutions :</strong> Réponses qui cherchent des questions (elles préexistent !).</li>
+                            <li class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span> <strong class="mr-1">Participants :</strong> Acteurs qui entrent et sortent.</li>
+                        </ul>
+                        <div class="bg-gray-100 p-4 rounded text-sm italic">
+                            "C'est comme une poubelle où l'on jette des problèmes et des solutions. Parfois, ils se rencontrent et une décision sort."
+                        </div>
+                    </div>
+                    <!-- Canvas Animation -->
+                    <div class="w-full bg-white rounded shadow border border-gray-300 relative">
+                        <canvas id="garbageCanCanvas" width="400" height="300" class="w-full h-auto"></canvas>
+                        <button onclick="resetGarbageSim()" class="absolute bottom-2 right-2 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-xs font-bold">Relancer</button>
+                        <div class="absolute top-2 left-2 text-xs bg-white/80 p-1 rounded">Simulation: Flux aléatoires</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Incrementalism -->
+            <div id="tab-increment" class="decision-content hidden">
+                 <div class="bg-white p-6 rounded shadow border-l-4 border-gray-500">
+                    <h3 class="text-xl font-bold text-[#2c3e50] mb-3">La Méthode des "Petits Pas"</h3>
+                    <p class="text-gray-700 mb-4">Lindblom critique l'approche rationnelle. Le changement radical est impossible ou trop risqué.</p>
+                    <p class="text-gray-700">Le décideur procède par <strong>ajustements à la marge</strong> (incréments). La décision est le fruit d'une négociation continue et d'un arrangement mutuel entre acteurs.</p>
+                    <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                        <div class="p-3 bg-gray-50 rounded">
+                            <div class="text-2xl">🐢</div>
+                            <div class="text-sm font-bold">Lenteur</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded">
+                            <div class="text-2xl">🤝</div>
+                            <div class="text-sm font-bold">Consensus</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded">
+                            <div class="text-2xl">🛡️</div>
+                            <div class="text-sm font-bold">Sécurité</div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ETUDE DE CAS -->
+        <section id="case" class="content-section hidden fade-in">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-[#2c3e50] mb-2">Étude de Cas : La Politique de la Ville</h2>
+                <p class="text-lg text-gray-600">Un exemple concret de la complexité de l'action publique en France, entre intentions nationales et réalités locales.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded shadow border-t-4 border-orange-500">
+                        <h3 class="font-bold text-lg mb-2">Origine & Problème</h3>
+                        <p class="text-gray-700 text-sm">Née dans les années 70-80 suite à l'échec des "grands ensembles" (ZUP) et à l'apparition de violences urbaines. Le problème n'est plus seulement le logement, mais le social.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded shadow border-t-4 border-orange-500">
+                        <h3 class="font-bold text-lg mb-2">Gouvernance Complexe</h3>
+                        <p class="text-gray-700 text-sm">Souvent qualifiée de "merdier de gouvernance". Elle implique une multitude d'acteurs : État, Mairies, Métropoles, Bailleurs sociaux, Associations.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-6 rounded flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-[#2c3e50]">Outils & Dispositifs</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="bg-white p-1 rounded mr-3 text-xs font-mono border">ZUP</span>
+                                <span class="text-sm">Zones d'Urbanisation Prioritaire (Origine)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-white p-1 rounded mr-3 text-xs font-mono border">DSU</span>
+                                <span class="text-sm">Développement Social Urbain</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-white p-1 rounded mr-3 text-xs font-mono border">PNRU</span>
+                                <span class="text-sm">Programme National de Rénovation Urbaine</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-6 bg-white p-4 rounded border border-gray-200">
+                        <h4 class="font-bold text-sm text-gray-800 mb-2">Analyse d'impact</h4>
+                        <p class="text-xs text-gray-600 italic">"Les politiques de la ville oscillent entre une logique de réparation urbaine (le bâti) et une logique d'accompagnement social (les gens). L'évaluation reste difficile."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA STORE ---
+        const powerDetails = {
+            'eu': {
+                title: 'Pouvoir Européen (Supranational)',
+                desc: "Depuis le traité de Rome (1957), l'État a cédé une partie de ses prérogatives. L'UE agit selon le principe de subsidiarité : elle n'intervient que si elle est plus efficace que les États. Elle gère notamment la monnaie, le commerce, et norme de nombreux secteurs.",
+                keywords: ['Subsidiarité', 'Supranational', 'Normes', 'Monnaie Unique']
+            },
+            'national': {
+                title: 'Pouvoir National (Central)',
+                desc: "Cadre de référence historique. Le Parlement vote la loi et l'impôt, le Gouvernement exécute. L'État garde ses fonctions régaliennes (Police, Justice, Armée) mais voit sa souveraineté encadrée par le droit européen et la mondialisation.",
+                keywords: ['Souveraineté', 'Régalien', 'Loi', 'Solidarité Nationale']
+            },
+            'local': {
+                title: 'Pouvoir Local (Décentralisé)',
+                desc: "Depuis 1982, transfert de compétences (urbanisme, action sociale, collèges/lycées) vers les collectivités. L'État devient coordinateur. Cela favorise la démocratie locale mais risque d'accroître les inégalités territoriales.",
+                keywords: ['Décentralisation', 'Proximité', 'Collectivités', 'Inégalités']
+            },
+            'citizen': {
+                title: 'Pouvoir Citoyen',
+                desc: "Fondé sur le Contrat Social. S'exerce via la représentation (vote) ou la participation directe. On observe une crise de la représentation classique au profit de nouvelles formes de mobilisation (pétitions, manifestations).",
+                keywords: ['Contrat Social', 'Vote', 'Participation', 'Crise de la Représentation']
+            }
+        };
+
+        // --- NAVIGATION LOGIC ---
+        function navigateTo(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update sidebar active state
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('border-l-4', 'border-[#2c3e50]', 'bg-[#d6d3cc]', 'text-[#2c3e50]');
+                btn.classList.add('border-transparent');
+                if(btn.dataset.target === sectionId) {
+                    btn.classList.remove('border-transparent');
+                    btn.classList.add('border-l-4', 'border-[#2c3e50]', 'bg-[#d6d3cc]', 'text-[#2c3e50]');
+                }
+            });
+            
+            // Trigger specific inits
+            if(sectionId === 'decision') {
+                initRationalityChart();
+                if(!garbageSimulationRunning) initGarbageCanSim();
+            }
+        }
+
+        // --- POWER SCALES INTERACTION ---
+        function updatePowerDetail(key) {
+            const data = powerDetails[key];
+            const panel = document.getElementById('power-detail-panel');
+            
+            // Simple fade effect
+            panel.style.opacity = '0.5';
+            setTimeout(() => {
+                document.getElementById('power-title').innerText = data.title;
+                document.getElementById('power-desc').innerText = data.desc;
+                const kwContainer = document.getElementById('power-keywords');
+                kwContainer.innerHTML = '';
+                data.keywords.forEach(kw => {
+                    const span = document.createElement('span');
+                    span.className = 'bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold';
+                    span.innerText = '#' + kw;
+                    kwContainer.appendChild(span);
+                });
+                panel.style.opacity = '1';
+            }, 200);
+        }
+
+        // --- DECISION TABS LOGIC ---
+        function switchDecisionTab(tabName) {
+            // Update Buttons
+            document.querySelectorAll('.decision-tab').forEach(btn => {
+                btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+                if(btn.dataset.tab === tabName) {
+                    btn.classList.remove('border-transparent', 'text-gray-500');
+                    btn.classList.add('border-indigo-500', 'text-indigo-600');
+                }
+            });
+
+            // Update Content
+            document.querySelectorAll('.decision-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            
+            // Special handling for canvas visibility
+            if(tabName === 'garbage' && !garbageSimulationRunning) {
+                setTimeout(initGarbageCanSim, 100);
+            }
+        }
+
+        // --- KINGDON MIXER LOGIC ---
+        const sliders = ['range-problem', 'range-solution', 'range-politics'];
+        sliders.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateKingdonMixer);
+        });
+
+        function updateKingdonMixer() {
+            const p = parseInt(document.getElementById('range-problem').value);
+            const s = parseInt(document.getElementById('range-solution').value);
+            const pol = parseInt(document.getElementById('range-politics').value);
+
+            // Update text labels
+            document.getElementById('val-problem').innerText = p > 70 ? "Critique" : (p > 30 ? "Moyen" : "Faible");
+            document.getElementById('val-solution').innerText = s > 70 ? "Prête" : (s > 30 ? "En débat" : "Inexistante");
+            document.getElementById('val-politics').innerText = pol > 70 ? "Favorable" : (pol > 30 ? "Neutre" : "Hostile");
+
+            // Calculate convergence
+            const average = (p + s + pol) / 3;
+            const threshold = 75; 
+            
+            // Update Bar
+            const bar = document.getElementById('convergence-bar');
+            bar.style.width = average + '%';
+
+            // Check Status
+            const icon = document.getElementById('window-status-icon');
+            const title = document.getElementById('window-status-title');
+            const desc = document.getElementById('window-status-desc');
+            const barContainer = document.getElementById('convergence-bar');
+
+            if (average > threshold && p > 50 && s > 50 && pol > 50) {
+                // Window Open
+                icon.classList.remove('grayscale');
+                icon.innerText = "🌟";
+                title.innerText = "FENÊTRE OUVERTE !";
+                title.className = "text-xl font-bold text-green-600";
+                desc.innerText = "Convergence atteinte ! La réforme peut passer.";
+                barContainer.className = "bg-green-500 h-2.5 rounded-full transition-all duration-300";
+            } else {
+                // Window Closed
+                icon.classList.add('grayscale');
+                icon.innerText = "🪟";
+                title.innerText = "Fenêtre Fermée";
+                title.className = "text-xl font-bold text-gray-400";
+                desc.innerText = "Les conditions ne sont pas réunies. Il manque un alignement des courants.";
+                barContainer.className = "bg-gray-400 h-2.5 rounded-full transition-all duration-300";
+            }
+        }
+
+        // --- CHART.JS: RATIONALITY RADAR ---
+        let chartInstance = null;
+        function initRationalityChart() {
+            if(chartInstance) return;
+            const ctx = document.getElementById('rationalityChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Info Technique', 'Coût Economique', 'Acceptabilité Sociale', 'Gain Politique', 'Ethique'],
+                    datasets: [{
+                        label: 'Poids dans la décision (Ministre)',
+                        data: [60, 90, 85, 95, 40],
+                        fill: true,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(54, 162, 235)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: { borderWidth: 3 }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: false },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // --- CANVAS: GARBAGE CAN SIMULATION ---
+        let garbageSimulationRunning = false;
+        let garbageReqId;
+        const garbageItems = [];
+        
+        function initGarbageCanSim() {
+            const canvas = document.getElementById('garbageCanCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            garbageSimulationRunning = true;
+
+            // Reset items
+            garbageItems.length = 0;
+            // Add Problems (Red)
+            for(let i=0; i<5; i++) garbageItems.push(createGarbageItem(canvas, 'problem'));
+            // Add Solutions (Green)
+            for(let i=0; i<5; i++) garbageItems.push(createGarbageItem(canvas, 'solution'));
+            // Add Bucket (Static)
+            const bucket = { x: canvas.width/2, y: canvas.height/2, r: 40, type: 'bucket' };
+
+            function animate() {
+                if(!garbageSimulationRunning) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw Bucket
+                ctx.beginPath();
+                ctx.arc(bucket.x, bucket.y, bucket.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+                ctx.fill();
+                ctx.strokeStyle = '#666';
+                ctx.stroke();
+                ctx.fillStyle = '#666';
+                ctx.font = "12px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("Décision", bucket.x, bucket.y + 4);
+
+                // Update and Draw Items
+                let problemsInBucket = 0;
+                let solutionsInBucket = 0;
+
+                garbageItems.forEach(item => {
+                    // Move
+                    item.x += item.dx;
+                    item.y += item.dy;
+
+                    // Bounce walls
+                    if(item.x < 0 || item.x > canvas.width) item.dx *= -1;
+                    if(item.y < 0 || item.y > canvas.height) item.dy *= -1;
+
+                    // Draw
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, item.r, 0, Math.PI * 2);
+                    ctx.fillStyle = item.type === 'problem' ? '#ef4444' : '#22c55e';
+                    ctx.fill();
+
+                    // Label
+                    ctx.fillStyle = 'white';
+                    ctx.font = "10px Arial";
+                    ctx.fillText(item.type === 'problem' ? 'P' : 'S', item.x, item.y + 3);
+
+                    // Check collision with bucket
+                    const dist = Math.hypot(item.x - bucket.x, item.y - bucket.y);
+                    if(dist < bucket.r) {
+                        if(item.type === 'problem') problemsInBucket++;
+                        if(item.type === 'solution') solutionsInBucket++;
+                    }
+                });
+
+                // Decision Logic
+                if(problemsInBucket > 0 && solutionsInBucket > 0) {
+                    ctx.fillStyle = "rgba(255, 215, 0, 0.5)"; // Gold glow
+                    ctx.fill();
+                    ctx.fillStyle = "black";
+                    ctx.font = "bold 16px Arial";
+                    ctx.fillText("ACTION !", bucket.x, bucket.y - 50);
+                }
+
+                garbageReqId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function createGarbageItem(canvas, type) {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                dx: (Math.random() - 0.5) * 2,
+                dy: (Math.random() - 0.5) * 2,
+                r: 10,
+                type: type
+            };
+        }
+
+        function resetGarbageSim() {
+            cancelAnimationFrame(garbageReqId);
+            initGarbageCanSim();
+        }
+
+        // Init First View
+        document.addEventListener('DOMContentLoaded', () => {
+            navigateTo('dashboard');
+        });
+
+    </script>
+</body>
+</html>
